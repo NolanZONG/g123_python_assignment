@@ -40,7 +40,7 @@ g123_python_assignment/
 - validator.py: defines the validators for validating query parameters
 
 I think the `model.py` is part of the implementation of the financial data API service, so
-I put it in the `financial` folder instead of the proejct root directory, 
+I put it in the `financial` folder instead of the project root directory, 
 which is a little different from the assignment examples.
 
 ### Migration
