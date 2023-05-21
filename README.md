@@ -48,6 +48,24 @@ We can use [Alembic](https://alembic.sqlalchemy.org/en/latest/) for database mig
 Alembic is a lightweight database migration tool for SQLAlchemy 
 that allows you to track and apply changes to your database schema.
 
+### Secrets management
+#### Development Environment
+
+The API key and other sensitive data are stored in a separate configuration file called `.env`, 
+which is specific to the development environment. This file should not be committed to version control systems. 
+The application code retrieves the password from the environment variable. 
+This approach allows for easy configuration and avoids exposing passwords in the code. 
+I believe this is sufficient for development purposes.
+
+#### Production Environment
+We can consider use a secure secrets management system, for example:
+- [HashiCorp Vault](https://www.hashicorp.com/products/vault)
+- [AWS Secrets Manager](https://aws.amazon.com/jp/secrets-manager/)
+- [GCP Secrets Manager](https://cloud.google.com/secret-manager)
+
+These tools provide secure storage and retrieval of sensitive data, including api_key, passwords. 
+Access to the secrets can be tightly controlled, and the passwords can be rotated regularly for enhanced security.
+
 ## Usage
 This project was tested successfully on 
 - Ubuntu 18.04.4 LTS
