@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: financial_db
+    environment:
+      MYSQL_USER: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    networks:
+      - ctw_network
+    healthcheck:
+        test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+        timeout: 20s
+        retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - HTTP_PROXY=${HTTP_PROXY}
+        - HTTPS_PROXY=${HTTPS_PROXY}
+    container_name: financial_app
+    command: uvicorn financial.main:app --host 0.0.0.0 --port 80
+    ports:
+      - '${HTTP_PORT}:80'
+    environment:
+      http_proxy: ${HTTP_PROXY}
+      https_proxy: ${HTTPS_PROXY}
+      no_proxy: localhost,127.0.0.1,financial_db
+      ALPHAVANTAGE_DOMAIN: ${ALPHAVANTAGE_DOMAIN}
+      ALPHAVANTAGE_APIKEY: ${ALPHAVANTAGE_APIKEY}
+      DB_USER: ${MYSQL_USERNAME}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DB_HOST: financial_db
+      DB_NAME: ${MYSQL_DATABASE}
+    networks:
+      - ctw_network
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+
+networks:
+  ctw_network:

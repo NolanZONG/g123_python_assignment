@@ -1,228 +1,95 @@
 # Take-Home Assignment
 
-The goal of this take-home assignment is to evaluate your abilities to use API, data processing and transformation, SQL, and implement a new API service in Python.
+This is a prototype for the CTW take-home assignment. 
 
-You should first fork this repository, and then send us the code or the url of your forked repository via email.
+It is implemented in Python 3.11 and integrated with a MySQL 8.0 database.
 
-**Please do not submit any pull requests to this repository.**
 
-You need to perform the following **Two** tasks:
+## Tech Stack
 
-## Task1
-### Problem Statement:
-1. Retrieve the financial data of Two given stocks (IBM, Apple Inc.)for the most recently two weeks. Please using an free API provider named [AlphaVantage](https://www.alphavantage.co/documentation/) 
-2. Process the raw API data response, a sample output after process should be like:
+- [FastAPI](https://fastapi.tiangolo.com/lo/) - A modern, fast (high-performance), web framework for building APIs. 
+I chose it because it is easy to learn, fast to code, and good for prototyping. 
+- [Uvicorn](https://www.uvicorn.org/) - An ASGI web server implementation for Python.
+- [Pydantic](https://docs.pydantic.dev/latest/) - Data validation library. It is used for validating query parameters.
+- [SQLAlchemy](https://www.sqlalchemy.org/) - ORM toolkit for SQL. It can help me handle the interaction with the DB, 
+allowing me to focus on business logic.
+
+## Directory structure:
 ```
-{
-    "symbol": "IBM",
-    "date": "2023-02-14",
-    "open_price": "153.08",
-    "close_price": "154.52",
-    "volume": "62199013",
-},
-{
-    "symbol": "IBM",
-    "date": "2023-02-13",
-    "open_price": "153.08",
-    "close_price": "154.52",
-    "volume": "59099013"
-},
-{
-    "symbol": "IBM",
-    "date": "2023-02-12",
-    "open_price": "153.08",
-    "close_price": "154.52",
-    "volume": "42399013"
-},
-...
-``` 
-3. Insert the records above into a table named `financial_data` in your local database, column name should be same as the processed data from step 2 above (symbol, date, open_price, close_price, volume) 
-
-
-## Task2
-### Problem Statement:
-1. Implement an Get financial_data API to retrieve records from `financial_data` table, please note that:
-    - the endpoint should accept following parameters: start_date, end_date, symbol, all parameters are optional
-    - the endpoint should support pagination with parameter: limit and page, if no parameters are given, default limit for one page is 5
-    - the endpoint should return an result with three properties:
-        - data: an array includes actual results
-        - pagination: handle pagination with four properties
-            
-            - count: count of all records without panigation
-            - page: current page index
-            - limit: limit of records can be retrieved for single page
-            - pages: total number of pages
-        - info: includes any error info if applies
-    
-
-Sample Request:
-```bash
-curl -X GET 'http://localhost:5000/api/financial_data?start_date=2023-01-01&end_date=2023-01-14&symbol=IBM&limit=3&page=2'
-
-```
-Sample Response:
-```
-{
-    "data": [
-        {
-            "symbol": "IBM",
-            "date": "2023-01-05",
-            "open_price": "153.08",
-            "close_price": "154.52",
-            "volume": "62199013",
-        },
-        {
-            "symbol": "IBM",
-            "date": "2023-01-06",
-            "open_price": "153.08",
-            "close_price": "154.52",
-            "volume": "59099013"
-        },
-        {
-            "symbol": "IBM",
-            "date": "2023-01-09",
-            "open_price": "153.08",
-            "close_price": "154.52",
-            "volume": "42399013"
-        }
-    ],
-    "pagination": {
-        "count": 20,
-        "page": 2,
-        "limit": 3,
-        "pages": 7
-    },
-    "info": {'error': ''}
-}
-
-```
-
-2. Implement an Get statistics API to perform the following calculations on the data in given period of time:
-    - Calculate the average daily open price for the period
-    - Calculate the average daily closing price for the period
-    - Calculate the average daily volume for the period
-
-    - the endpoint should accept following parameters: start_date, end_date, symbols, all parameters are required
-    - the endpoint should return an result with two properties:
-        - data: calculated statistic results
-        - info: includes any error info if applies
-
-Sample request:
-```bash
-curl -X GET http://localhost:5000/api/statistics?start_date=2023-01-01&end_date=2023-01-31&symbol=IBM
-
-```
-Sample response:
-```
-{
-    "data": {
-        "start_date": "2023-01-01",
-        "end_date": "2023-01-31",
-        "symbol": "IBM",
-        "average_daily_open_price": 123.45,
-        "average_daily_close_price": 234.56,
-        "average_daily_volume": 1000000
-    },
-    "info": {'error': ''}
-}
-
-```
-
-## What you should deliver:
-Directory structure:
-```
-project-name/
-├── model.py
-├── schema.sql
+g123_python_assignment/
+├── .env.example
 ├── get_raw_data.py
 ├── Dockerfile
 ├── docker-compose.yml
 ├── README.md
 ├── requirements.txt
-└── financial/<Include API service code here>
+└── financial/
+      └── database.py
+      └── main.py
+      └── model.py
+      └── repository.py
+      └── schema.py
+      └── service.py
+      └── validator.py
+```
+- database.py: sets up the configuration for connecting to a MySQL database
+- main.py: implements a FastAPI application
+- model.py: defines an SQLAlchemy model for storing financial data
+- repository.py: provides a repository for the CRUD of financial data
+- schema.py: defines the `FinancialData` model class using the Pydantic for validation
+- validator.py: defines the validators for validating query parameters
 
+I think the `model.py` is part of the implementation of the financial data API service, so
+I put it in the `financial` folder instead of the proejct root directory, 
+which is a little different from the assignment examples.
+
+### Migration
+We can use [Alembic](https://alembic.sqlalchemy.org/en/latest/) for database migrations. 
+Alembic is a lightweight database migration tool for SQLAlchemy 
+that allows you to track and apply changes to your database schema.
+
+## Usage
+This project was tested successfully on 
+- Ubuntu 18.04.4 LTS
+- Docker version 20.10.14, build a224086
+- docker-compose version 1.29.2, build 5becea4c
+
+You can run it on your local environment by following these steps:
+
+
+1. Get an API key from [AlphaVantage](https://www.alphavantage.co/documentation/)
+2. Clone this repo, copy the `.env.example` and rename it to `.env` and put it in the same directory of `.env.example`.
+Fill in the config variable in the `.env`:
+```
+ALPHAVANTAGE_APIKEY: The API KEY you got from AlphaVantage in step one
+MYSQL_PASSWORD: any value you preferred
+MYSQL_ROOT_PASSWORD: any value you preferred
+HTTP_PORT: port number for http service, you can use any available port on your local environment.
+HTTP_PROXY/HTTPS_PROXY: Optional. Fill in it if you are behind a proxy.
+```
+You can also change the `MYSQL_USERNAME` to any other value you preferred.
+
+
+3. Run the command
+   ```
+   docker-compose up -d
+   ```
+4. If all goes well, the app is ready now.
+```shell
+developer@hostname:/g123$ docker-compose ps
+
+    Name                   Command                  State                      Ports
+----------------------------------------------------------------------------------------------------
+financial_app   uvicorn financial.main:app ...   Up             0.0.0.0:8000->80/tcp,:::8000->80/tcp
+financial_db    docker-entrypoint.sh mysqld      Up (healthy)   3306/tcp, 33060/tcp
 ```
 
-1. A `get_raw_data.py` file in root folder
 
-    Action: 
-    
-    Run 
-    ```bash
-    python get_raw_data.py
-    ```
-
-    Expectation: 
-    
-    1. Financial data will be retrieved from API and processed,then insert all processed records into table `financial_data` in local db
-    2. Duplicated records should be avoided when executing get_raw_data multiple times, consider implementing your own logic to perform upsert operation if the database you select does not have native support for such operation.
-
-2. A `schema.sql` file in root folder
-    
-    Define schema for financial_data table, if you prefer to use an ORM library, just **ignore** this deliver item and jump to item3 below.
-
-    Action: Run schema definition in local db
-
-    Expectation: A new table named `financial_data` should be created if not exists in db
-
-3. (Optional) A `model.py` file: 
-    
-    If you perfer to use a ORM library instead of DDL, please include your model definition in `model.py`, and describe how to perform migration in README.md file
-
-4. A `Dockerfile` file in root folder
-
-    Build up your local API service
-
-5. A `docker-compose.yml` file in root folder
-
-    Two services should be defined in docker-compose.yml: Database and your API
-
-    Action:
-
-    ```bash
-    docker-compose up
-    ```
-
-    Expectation:
-    Both database and your API service is up and running in local development environment
-
-6. A `financial` sub-folder:
-
-    Put all API implementation related codes in here
-
-7. `README.md`: 
-
-    You should include:
-    - A brief project description
-    - Tech stack you are using in this project
-    - How to run your code in local environment
-    - Provide a description of how to maintain the API key to retrieve financial data from AlphaVantage in both local development and production environment.
-
-8. A `requirements.txt` file:
-
-    It should contain your dependency libraries.
-
-## Requirements:
-
-- The program should be written in Python 3.
-- You are free to use any API and libraries you like, but should include a brief explanation of why you chose the API and libraries you used in README.
-- The API key to retrieve financial data should be stored securely. Please provide a description of how to maintain the API key from both local development and production environment in README.
-- The database in Problem Statement 1 could be created using SQLite/MySQL/.. with your own choice.
-- The program should include error handling to handle cases where the API returns an error or the data is not in the correct format.
-- The program should cover as many edge cases as possible, not limited to expectations from deliverable above.
-- The program should use appropriate data structures and algorithms to store the data and perform the calculations.
-- The program should include appropriate documentation, including docstrings and inline comments to explain the code.
-
-## Evaluation Criteria:
-
-Your solution will be evaluated based on the following criteria:
-
-- Correctness: Does the program produce the correct results?
-- Code quality: Is the code well-structured, easy to read, and maintainable?
-- Design: Does the program make good use of functions, data structures, algorithms, databases, and libraries?
-- Error handling: Does the program handle errors and unexpected input appropriately?
-- Documentation: Is the code adequately documented, with clear explanations of the algorithms and data structures used?
-
-## Additional Notes:
-
-You have 7 days to complete this assignment and submit your solution.
+6. Get into the app container and fetch stock data to the local database.
+   ```
+   developer@hostname:/g123$ docker exec -it financial_app /bin/bash
+   root@842a6381139f:/code# python get_raw_data.py
+   ```
+7. If all goes well, data is ready now, you can send requests from the browser or `curl`. 
+You can also find the auto-generated API documentation on `http://{domain}:{port}/docs`
+8. You can use `docker-compose down` to stop and remove the service
