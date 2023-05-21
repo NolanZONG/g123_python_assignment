@@ -85,11 +85,11 @@ financial_db    docker-entrypoint.sh mysqld      Up (healthy)   3306/tcp, 33060/
 ```
 
 
-6. Get into the app container and fetch stock data to the local database.
+5. Get into the app container and fetch stock data to the local database.
    ```
    developer@hostname:/g123$ docker exec -it financial_app /bin/bash
    root@842a6381139f:/code# python get_raw_data.py
    ```
-7. If all goes well, data is ready now, you can send requests from the browser or `curl`. 
+6. If all goes well, data is ready now, you can send requests from the browser or `curl`. 
 You can also find the auto-generated API documentation on `http://{domain}:{port}/docs`
-8. You can use `docker-compose down` to stop and remove the service
+7. You can use `docker-compose down` to stop and remove the service
